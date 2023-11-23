@@ -1,4 +1,4 @@
-# Best Practices für RESTful APIs
+# Best Practices REST API
 
 ## Allgemeine Tipps für eine gute API
 
