@@ -1,5 +1,11 @@
 # Best Practices REST API
 
+## Versionierung
+`.../vmajorVersion/...` z.B. ``.../v1/...`
+- Major: Vorhandene Interaktionen werden verändert (Breaking Changes) (Alte Versionen weiterhin zur Verfügung stellen!)
+- Minor: Neue Interaktionen werden hinzugefügt (keine Angabe im Pfad)
+- Patch: Fehlerbehebung (keine Angabe im Pfad)
+
 ## Allgemeine Tipps für eine gute API
 
 Wenn du eine RESTful API erstellst, ist es wichtig, einige bewährte Praktiken zu beachten, um sicherzustellen, dass sie gut funktioniert und für Entwickler leicht verständlich ist. Hier sind einige Dinge, die du beachten solltest:
