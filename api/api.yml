@@ -1,0 +1,237 @@
+openapi: "3.0.3"
+
+info:
+  description: API Für Tischreservierungen
+  version: 1.0.0
+  title: Tischreservierung
+
+servers:
+  - url: http://localhost:8080
+    description: local
+
+paths:
+  /api/v1/tables/free:
+    get:
+      tags:
+        - Tables
+      summary: Get Free tables
+      operationId: getFreeTables
+      parameters:
+        - name: timestamp
+          in: query
+          schema:
+            $ref: '#/components/schemas/timestamp'
+      responses:
+        200:
+          description: List of free tables
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/freeTables'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/badRequest'
+
+  /api/v1/bookings:
+    get:
+      tags:
+        - Bookings
+      summary: Get a list of bookings
+      parameters:
+        - name: timestamp
+          in: query
+          schema:
+            $ref: '#/components/schemas/timestamp'
+      responses:
+        200:
+          description: list of bookings
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/bookingGet'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/badRequest'
+    post:
+      tags:
+        - Bookings
+      summary: Book a table
+      operationId: postBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bookingPost'
+      responses:
+        201:
+          description: Table booked
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/badRequest'
+        404:
+          description: Table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+        403:
+          description: Not bookable at that time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notBookable'
+
+  /api/v1/bookings/{id}:
+    delete:
+      summary: Cancel booking
+      tags:
+        - Bookings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: pin
+          in: header
+          required: true
+          schema:
+            type: integer
+      responses:
+        201:
+          description: Cancelled booking
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/badRequest'
+        404:
+          description: booking id not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFound'
+
+components:
+  schemas:
+    timestamp:
+      type: string
+      pattern: \d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}
+    freeTables:
+      type: array
+      items:
+        type: object
+        required:
+          - tischnummer
+          - anzahlPlaetze
+        properties:
+          tischnummer:
+            type: integer
+          anzahlPlaetze:
+            type: integer
+    bookingPost:
+      type: object
+      required:
+        - table
+        - timestamp
+        - pin
+      properties:
+        table:
+          description: table id
+          type: integer
+        timestamp:
+          type: string
+          description: timestamp when to reserve
+          pattern: \d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}
+        pin:
+          type: integer
+          description: safety pin
+    bookingGet:
+      type: array
+      items:
+        type: object
+        required:
+          - id
+          - table
+          - timestamp
+          - pin
+        properties:
+          id:
+            type: integer
+            description: booking id
+          table:
+            description: table id
+            type: integer
+          timestamp:
+            type: string
+            description: timestamp when to reserve
+            pattern: \d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}
+          pin:
+            type: integer
+            description: safety pin
+    badRequest:
+      type: object
+      required:
+        - error
+        - reason
+        - status
+      properties:
+        error:
+          type: string
+          default: "bad request"
+        reason:
+          description: reason
+          type: string
+        status:
+          description: response status
+          default: "400"
+          type: integer
+    notFound:
+      type: object
+      required:
+        - error
+        - id
+        - status
+      properties:
+        error:
+          type: string
+          default: "not found"
+        id:
+          description: id
+          type: integer
+        status:
+          description: response status
+          default: "404"
+          type: integer
+    notBookable:
+      type: object
+      required:
+        - error
+        - tableId
+        - status
+        - timestamp
+      properties:
+        error:
+          type: string
+          default: "not bookable at the time"
+        tableId:
+          description: id
+          type: integer
+        timestamp:
+          type: string
+          pattern: \d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}
+        status:
+          description: response status
+          default: "403"
+          type: integer
